@@ -1,0 +1,13 @@
+[TOC]
+# ArrayBlockingQueue && LinkedBlockingQueue
+1. ArrayBlockingQueue内部维护了一个定长数组，以便保存数据对象；还有两个整型变量，分别标识队列的头部和尾部在数组中的位置。而LinkedBlockingQueue是基于链表实现，需要把入队的元素封装成Node节点对象；这样，ArrayBlockingQueue在插入或者删除元素时不会产生或销毁额外的对象实例，而LinkedBlockingQueue需要销毁Node对象，在高并发系统中，对GC的性能有一定的影响。
+2. ArrayBlockingQueue初始化时需要指定数组大小，LinkedBlockingQueue初始化时可以指定或者不指定队列最大长度；
+3. ArrayBlockingQueue在生产和消费数据时，采用的是同一把锁，也就是说生产和消费不能同时进行；而LinkedBlockingQueue的生产和消费是两把锁；
+4. ArrayBlockingQueue基于数组实现，分配的是连续内存空间，且是预先分配的，无需动态申请内存空间；而LinkedBlockingQueue是基于链表实现，内存空间是动态分配的，可能会增加jvm回收的负担（产生许多内存碎片）；数组访问速度快，因为内存空间是连续的；
+
+
+# ArrayBlockingQueue为什么不采用两把锁？
+1. ArrayBlockingQueue的数据写入和读取非常简单(加锁-判断是否满-数组元素赋值；加锁-判断是否空-移除元素)，耗时少；引入分离锁，会带来代码的复杂性，可能性能上也不能有很大的提升；而LinkedBlocking需要将插入的元素封装成Node对象，为了尽量减少这部分时间的占比，使用两把锁可以优化并发性能；
+2. ArrayBlockingQueue可以用两把锁实现，但是对应的count需要修改为AtomicInteger，通知方式也需要修改，先获取另外一把锁再通知；这样修改后，会比原先多两次的竞争锁操作，一次是Atomic变量的CAS操作，一次是获取另外一把锁进行通知。可能这部分的损耗已经比并发存取带来的收益更大。
+
+# 源码解析

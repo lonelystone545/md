@@ -1,0 +1,9 @@
+
+JDK静态代理、JDK动态代理以及CGLIB动态代理。在Spring的AOP实现中，主要应用了JDK动态代理以及CGLIB动态代理
+
+ Spring是在运行期利用JDK或CGLib创建代理，我们还可以在类加载期间通过字节码编辑的技术，将切面织入到目标类中，这种织入方式称为LTW(Load Time Weaving)。Spring为LTW的过程提供了细粒度的控制，它支持在单个ClassLoader范围内实施类文件转换，且配置更为简单。
+
+# 策略
+1、如果目标对象实现了接口，默认情况下会采用JDK的动态代理实现AOP 
+2、如果目标对象实现了接口，可以强制使用CGLIB实现AOP 
+3、如果目标对象没有实现了接口，必须采用CGLIB库，spring会自动在JDK动态代理和CGLIB之间转换

@@ -1,0 +1,25 @@
+[TOC]
+# 介绍
+keepalived是保证集群高可用的一个服务软件，类似于heartbeat，防止单点故障；它以VRRP(Virtual Router Redundancy Protocol，即虚拟路由冗余协议)协议为实现基础的，可以工作在第三层、四层、第五层的检测服务状态的软件；
+如果一台机器宕机或者故障，keepalived将检测到，并将其从系统中剔除；
+当机器恢复正常工作后，keepalived自动将这个机器加入到集群中；
+集群通过VIP对外暴露服务，如果master挂了，那么VIP会自动漂移到其他的备份机器；
+
+# 工作原理
+三层：keepalived使用三层方式工作是，keepalived会定期向服务器集群中的服务器发送一个IMCP的数据包，也就是ping程序，如果发现某台服务器的IP地址没有激活，keepalived便报告这台服务器失效，并将它从集群中删除，这种情况的典型例子是某台服务器被非法关机。三层的方式是以服务器的IP地址是否有效作为服务器工作正常与否的标准。
+
+四层：主要是以TCP端口的状态来决定服务器工作正常与否。如web服务器的端口一般是80，如果keepalived检测到80端口没有启动，则keepalived将这台服务器从集群中剔除。
+
+五层：应用层，比三层和四层要复杂一点，keepalived将根据用户的设定检查服务器程序运行是否正常，如果与用户设定的不相符，则keepalived将把服务器从服务器集群中剔除。
+基于VRRP虚拟路由冗余协议，可以认为是实现路由器高可用的协议，即将N台提供相同功能的路由器组成一个路由器组，这个组里面有一个master和多个backup，master上面有一个对外提供服务的vip（该路由器所在局域网内其他机器的默认路由为该vip），master会发组播，当backup收不到vrrp包时就认为master宕掉了，这时就需要根据VRRP的优先级来选举一个backup当master。这样的话就可以保证路由器的高可用了。
+
+# 详细
+KeepAlived是基于VRRP协议工作的，需要为每台机器配置虚拟路由器的ID和优先级，具有相同的ID则在同一个组中；在一个组中，只有master机器会一直发送信息，backup机器只会接受master发来的信息，用于监控master的运行状态，除非backup的优先级比master高；
+当master不可用时，backup无法收到master发过来的信息，则认定master故障，那么多个backup就会进行选举，选举规则如下：
+1. 虚拟路由器IP=路由器本身配置的IP，该路由器将是master，ip地址所有者自动具有最高优先级；
+2. 优先级高的，会被选举被master；
+3. 优先级相同，则比较路由器的实际IP，IP大的优先权高；
+
+# 应用
+LVS + KeepAlived
+Mysql双主的高可用架构
