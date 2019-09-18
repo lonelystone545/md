@@ -7,6 +7,9 @@
     通过mvcc解决了可重复读问题；通过间隙锁和next-keys解决了幻读问题
 4. mysql架构(多master)
 
+# 数据库一致性的理解
+https://www.zhihu.com/question/31346392
+
 # sql执行顺序
 1.  FROM 子句 组装来自不同数据源的数据
 2.  WHERE 子句 基于指定的条件对记录进行筛选

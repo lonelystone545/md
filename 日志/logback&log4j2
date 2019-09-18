@@ -1,2 +1,0 @@
-[性能比较](https://blog.souche.com/logback-log4j-log4j2shi-ce/)
-log4j2性能优于logback，内部采用不加锁的disruptor

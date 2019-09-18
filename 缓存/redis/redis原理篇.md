@@ -1,3 +1,4 @@
+[TOC]
 # 发布订阅原理
 [订阅与发布](https://redisbook.readthedocs.io/en/latest/feature/pubsub.html)
 redis中有类似key-value结构，key为channel，value为订阅该channel的订阅者，是一个链表。
